@@ -53,7 +53,7 @@ Destaque em bloco próprio:
 ## 4. Abrir o PR
 
 ```bash
-gh pr create --base main --label pending --label ready-to-review \
+gh pr create --base main \
   --title "[chore][release] promote dev to main $(date +%Y-%m-%d)" \
   --body "<changelog em inglês>"
 ```

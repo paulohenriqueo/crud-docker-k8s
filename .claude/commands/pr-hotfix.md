@@ -38,7 +38,7 @@ está quebrado na branch estável e a correção **não pode** esperar o ciclo n
 ```bash
 git push -u origin <branch>
 
-gh pr create --base main --label pending --label ready-to-review \
+gh pr create --base main \
   --title "[hotfix][<contexto>] <short description>" \
   --body "$(cat <<'BODY'
 ## What broke

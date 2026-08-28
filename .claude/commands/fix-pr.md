@@ -44,12 +44,11 @@ Um commit por grupo coerente de correções, mensagem **em inglês** no formato
 `tipo: descrição no imperativo`, descrevendo o que mudou — não "fix review".
 Depois `git push`.
 
-**Atenção:** um bot de review pode ter pushado autofix na branch. Rode `git pull --rebase`
-antes de pushar e revalide o que veio.
+**Atenção:** rode `git pull --rebase` antes de pushar. Não há bot de autofix neste
+repositório, mas o dev pode ter commitado na branch pela IDE.
 
 ## 6. Fechamento
 
-- Reaplique as labels `pending` e `ready-to-review` (o push as invalida).
 - Peça re-review.
 - Reporte: o que foi corrigido, o que foi contestado e por quê.
 

@@ -45,7 +45,7 @@ domínios foram impactados. **Não invente** nada que não esteja nos commits/di
 ```bash
 git push -u origin <branch>
 
-gh pr create --base dev --label pending --label ready-to-review \
+gh pr create --base dev \
   --title "[<tipo>][<contexto>] <short description>" \
   --body "$(cat <<'BODY'
 <corpo seguindo .github/PULL_REQUEST_TEMPLATE.md, em inglês>
@@ -66,16 +66,14 @@ Se o PR toca Dockerfile, Compose ou manifesto K8s, preencher também o
 
 ## 5. Após criar
 
-Exibir a URL. Conferir que o PR tem `pending` e `ready-to-review`; adicionar a label que
-faltar imediatamente. Se a label não existir no repositório, criar com
-`gh label create <nome>` e seguir.
+Exibir a URL do PR.
 
 ---
 
 ## 6. Regras absolutas
 
 - **SEMPRE** base `dev`. **NUNCA** `main` por aqui (hotfix tem comando próprio).
-- **SEMPRE** com `pending` + `ready-to-review`.
+- **NUNCA** aplicar label — não há automação que consuma label neste repositório.
 - **NUNCA** mergear — só criar.
 - **NUNCA** inventar mudança fora dos commits.
 - **NUNCA** incluir `Co-Authored-By` em commit ou corpo de PR.

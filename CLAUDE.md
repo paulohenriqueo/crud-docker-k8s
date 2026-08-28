@@ -98,8 +98,9 @@ Correção que aguenta o ciclo normal vai pra `dev`.
   Ex.: `[feature][backend] add usuario REST controller`.
 - **Corpo:** seguir `.github/PULL_REQUEST_TEMPLATE.md`, **em inglês**. Bugfix preenche também
   **Root cause / What changed / Why it fixes it for everyone**.
-- **Labels:** `pending` + `ready-to-review` em todo PR, sempre, sem pedir confirmação.
-- **A cada commit novo**, a aprovação anterior é invalidada e as labels voltam.
+- **Sem labels.** Não há esteira de review automática neste repositório, então label não
+  dispara nada — seria só ruído. Se um dia entrar automação que dependa de label, esta
+  regra volta junto com ela.
 
 ### Commits
 
@@ -289,7 +290,7 @@ Consequências práticas:
 
 | Comando | O que faz |
 |---|---|
-| `/pr-abrir` | Abre PR da branch atual para `dev`, com título padrão, template e labels |
+| `/pr-abrir` | Abre PR da branch atual para `dev`, com título padrão e template |
 | `/pr-hotfix` | Abre PR de `hotfix/*` (cortada de `main`) direto pra `main` |
 | `/pr-release` | Promoção `dev → main` com changelog |
 | `/review-pr N` | Code review completo do PR N, saída só no terminal |
