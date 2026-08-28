@@ -16,8 +16,8 @@ A entidade de domínio é intencionalmente simples (`usuario`: id, nome, email) 
 
 | Camada | Tecnologia |
 |---|---|
-| Backend | Spring Boot (Java) *ou* .NET (C#) — a definir |
-| Frontend | React *ou* Angular — a definir |
+| Backend | Spring Boot (Java 21) + Spring Data JPA |
+| Frontend | React + Vite |
 | Banco de dados | MySQL 8 |
 | Container | Docker / Docker Compose |
 | Orquestração | Kubernetes (Minikube ou Kind) |
@@ -27,8 +27,8 @@ A entidade de domínio é intencionalmente simples (`usuario`: id, nome, email) 
 
 ```
 crud-docker-k8s/
-├── backend/              # API REST + Dockerfile
-├── frontend/             # SPA + Dockerfile + config Nginx
+├── backend/              # API REST (Spring Boot) + Dockerfile
+├── frontend/             # SPA (React + Vite) + Dockerfile + config Nginx
 ├── database/             # scripts de inicialização
 ├── k8s/
 │   ├── mysql/            # Deployment, Service, PVC
