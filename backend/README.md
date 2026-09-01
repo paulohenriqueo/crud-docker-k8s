@@ -2,20 +2,72 @@
 
 API REST do CRUD de `usuario` (id, nome, email).
 
-Stack: **Spring Boot (Java 21)** + Spring Web + Spring Data JPA + MySQL Connector.
+**Stack:** Spring Boot 4.1.1 (Java 21) · Spring Data JPA · Flyway · MySQL 8 · Bean Validation.
 
-## Endpoints previstos
+## Endpoints
 
-| Método | Rota | Descrição |
+| Método | Rota | Sucesso | Erros |
+|---|---|---|---|
+| GET | `/api/usuarios` | 200 (paginado) | — |
+| GET | `/api/usuarios/{id}` | 200 | 404 |
+| POST | `/api/usuarios` | 201 + `Location` | 400, 409 |
+| PUT | `/api/usuarios/{id}` | 200 | 400, 404, 409 |
+| DELETE | `/api/usuarios/{id}` | 204 | 404 |
+
+Erros seguem RFC 7807 (`ProblemDetail`). Em 400, o corpo traz `erros` com o campo e o motivo.
+
+A listagem é **sempre** paginada e devolve `PagedModel` (`content` + `page`), não `PageImpl` —
+o Spring Data não garante estabilidade do JSON de `PageImpl` entre versões, e o frontend
+depende desse formato. O tamanho de página é limitado a 100 por configuração.
+
+## Configuração
+
+Tudo por variável de ambiente — ver `.env.example` na raiz. Nenhum valor sensível fica neste
+repositório: `spring.datasource.password` não tem default, então a aplicação **não sobe** sem
+a senha vir do ambiente (Secret, no Kubernetes).
+
+| Variável | Default | Para quê |
 |---|---|---|
-| GET | `/api/usuarios` | Lista todos os usuários |
-| GET | `/api/usuarios/{id}` | Busca um usuário |
-| POST | `/api/usuarios` | Cria um usuário |
-| PUT | `/api/usuarios/{id}` | Atualiza um usuário |
-| DELETE | `/api/usuarios/{id}` | Remove um usuário |
+| `MYSQL_HOST` | `localhost` | nome do serviço no Compose / do Service no K8s |
+| `MYSQL_PORT` | `3306` | |
+| `MYSQL_DATABASE` | `crud` | |
+| `MYSQL_USER` | — | |
+| `MYSQL_PASSWORD` | — | sem default de propósito |
+| `CORS_ALLOWED_ORIGINS` | `http://localhost:5173` | origem do frontend; nunca `*` |
+
+## Decisões
+
+- **Flyway com `ddl-auto=validate`.** O schema é do Flyway; o Hibernate só confere se a
+  entidade bate com a tabela e falha no boot se divergir. `update` mascara migration esquecida.
+- **`spring.flyway.connect-retries=10`.** O backend tolera o MySQL ainda não estar aceitando
+  conexão. O `depends_on` do Compose garante que o container **iniciou**, não que o banco está
+  **pronto** — sem retry, o primeiro `compose up` limpo derruba o backend.
+- **Actuator com probes.** `/actuator/health/liveness` e `/actuator/health/readiness` já
+  existem, prontos para as probes do Deployment na Semana 3.
+- **DTO em vez da entidade no controller.** Impede mass assignment e desacopla o contrato
+  HTTP do schema.
+- **Unicidade de e-mail no banco**, não só na aplicação: a checagem prévia dá a mensagem boa,
+  a constraint é o que segura duas requisições concorrentes.
+
+## Rodar
+
+Não há JDK nem Maven instalados nesta máquina (ver CLAUDE.md, seção 7), então o build roda
+dentro de container:
+
+```bash
+# testes
+docker run --rm -u "$(id -u):$(id -g)" -e HOME=$HOME \
+  -v "$HOME/.m2":"$HOME/.m2" -v "$PWD/backend":/app -w /app \
+  maven:3.9-eclipse-temurin-21 \
+  mvn -B -Dmaven.repo.local="$HOME/.m2/repository" test
+```
+
+Com JDK instalado, `./mvnw test` na pasta `backend/` faz o mesmo.
+
+A partir da Semana 2 isto vira `docker compose up`.
 
 ## Pendências
 
-- [ ] Inicializar o projeto (Spring Initializr)
-- [ ] Configurar conexão com MySQL via variáveis de ambiente
-- [ ] Dockerfile multi-stage (Semana 2)
+- [ ] Dockerfile multi-stage e `.dockerignore` (Semana 2)
+- [ ] Testes de integração contra MySQL real (Testcontainers) — hoje a suíte cobre a camada
+      HTTP com o service mockado e a regra de negócio com o repository mockado
