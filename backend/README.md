@@ -49,10 +49,43 @@ a senha vir do ambiente (Secret, no Kubernetes).
 - **Unicidade de e-mail no banco**, não só na aplicação: a checagem prévia dá a mensagem boa,
   a constraint é o que segura duas requisições concorrentes.
 
-## Rodar
+## Rodar localmente
 
-Não há JDK nem Maven instalados nesta máquina (ver CLAUDE.md, seção 7), então o build roda
-dentro de container:
+Não há JDK nem Maven instalados nesta máquina (ver CLAUDE.md, seção 7), então tudo roda
+dentro de container. O script sobe MySQL + API:
+
+```bash
+./scripts/dev-backend.sh up      # sobe (API em http://localhost:8080)
+./scripts/dev-backend.sh logs    # acompanha o log da API
+./scripts/dev-backend.sh status  # o que está de pé
+./scripts/dev-backend.sh down    # derruba, PRESERVANDO o volume do banco
+./scripts/dev-backend.sh reset   # apaga os dados do MySQL (pede confirmação)
+```
+
+`down` e `reset` são coisas diferentes de propósito: derrubar o ambiente não pode apagar
+dado. Essa confusão é a origem clássica de "o dado sumiu".
+
+O script é provisório — some na Semana 2, quando `docker compose up` assumir o papel.
+
+## Testar as rotas no Postman
+
+Importe `backend/postman/usuario-api.postman_collection.json`. São 15 requests em 4 pastas:
+
+- **Health** — os três endpoints que viram probes do Deployment na Semana 3.
+- **CRUD** — fluxo feliz na ordem. O request de criação gera um e-mail único e guarda o `id`
+  numa variável, então os seguintes já vêm encadeados.
+- **Erros esperados** — cada request comprova um status de erro correto (400, 404, 409).
+  Passar aqui significa que a API **rejeitou** como devia.
+- **Limites** — prova que `?size=500` é servido como 100.
+
+Todos os requests têm asserção de status, então dá para rodar a collection inteira pelo
+Runner do Postman: o esperado é 15/15 verdes com a API no ar.
+
+A variável `baseUrl` aponta para `http://localhost:8080`. Em Kubernetes, troque só ela.
+
+## Build e testes
+
+Para rodar só a suíte de testes, sem subir nada:
 
 ```bash
 # testes
