@@ -7,6 +7,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -132,6 +133,40 @@ class UsuarioControllerTest {
 
         mockMvc.perform(delete("/api/usuarios/1"))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("método HTTP não suportado responde 405, não 500")
+    void metodoNaoSuportadoRetorna405() throws Exception {
+        mockMvc.perform(patch("/api/usuarios/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nome\":\"Ana\",\"email\":\"ana@exemplo.com\"}"))
+                .andExpect(status().isMethodNotAllowed());
+    }
+
+    @Test
+    @DisplayName("Content-Type não suportado responde 415, não 500")
+    void contentTypeNaoSuportadoRetorna415() throws Exception {
+        mockMvc.perform(post("/api/usuarios")
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .content("{\"nome\":\"Ana\",\"email\":\"ana@exemplo.com\"}"))
+                .andExpect(status().isUnsupportedMediaType());
+    }
+
+    @Test
+    @DisplayName("JSON malformado responde 400, não 500")
+    void jsonMalformadoRetorna400() throws Exception {
+        mockMvc.perform(post("/api/usuarios")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nome\":"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("id em formato inválido responde 400, não 500")
+    void idInvalidoRetorna400() throws Exception {
+        mockMvc.perform(get("/api/usuarios/abc"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
