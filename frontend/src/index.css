@@ -1,0 +1,253 @@
+/* Estilo deliberadamente enxuto: o objeto de estudo do projeto é a
+   infraestrutura, não a UI. O que não é negociável aqui é legibilidade,
+   contraste e alvo de clique — o resto é simples de propósito. */
+
+:root {
+  --cor-fundo: #f4f5f7;
+  --cor-superficie: #ffffff;
+  --cor-borda: #d5d8de;
+  --cor-texto: #1c1f24;
+  --cor-texto-suave: #56606e;
+  --cor-primaria: #1f5fbf;
+  --cor-primaria-texto: #ffffff;
+  --cor-perigo: #b3261e;
+  --cor-sucesso-fundo: #e4f4e8;
+  --cor-sucesso-texto: #14532d;
+  --cor-erro-fundo: #fdeaea;
+  --cor-erro-texto: #8c1d18;
+  --raio: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  /* 16px de base: o mínimo do CLAUDE.md é 12px, mas texto de formulário
+     abaixo de 16px faz o Safari no iOS dar zoom automático ao focar. */
+  font: 16px/1.5 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: var(--cor-texto);
+  background: var(--cor-fundo);
+}
+
+.pagina {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.cabecalho h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.75rem;
+}
+
+.cabecalho p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.cartao {
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  padding: 1.25rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.cartao h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.estado {
+  color: var(--cor-texto-suave);
+}
+
+/* ---- Formulário ---- */
+
+.campo {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.campo label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.campo input {
+  font: inherit;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+  color: inherit;
+}
+
+.campo input:focus-visible,
+.botao:focus-visible {
+  outline: 2px solid var(--cor-primaria);
+  outline-offset: 2px;
+}
+
+.campo input[aria-invalid='true'] {
+  border-color: var(--cor-perigo);
+}
+
+.campo__erro {
+  color: var(--cor-erro-texto);
+  font-size: 0.85rem;
+}
+
+.cartao__acoes {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ---- Botões ---- */
+
+.botao {
+  font: inherit;
+  /* 44px de altura mínima: alvo de toque confortável. */
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+  color: inherit;
+  cursor: pointer;
+}
+
+.botao:hover:not(:disabled) {
+  border-color: var(--cor-texto-suave);
+}
+
+.botao:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.botao--primario {
+  background: var(--cor-primaria);
+  border-color: var(--cor-primaria);
+  color: var(--cor-primaria-texto);
+}
+
+.botao--perigo {
+  color: var(--cor-perigo);
+  border-color: var(--cor-perigo);
+}
+
+.botao--pequeno {
+  min-height: 2.25rem;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.9rem;
+}
+
+/* ---- Tabela ---- */
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabela__legenda {
+  text-align: left;
+  color: var(--cor-texto-suave);
+  font-size: 0.9rem;
+  padding-bottom: 0.75rem;
+}
+
+.tabela th,
+.tabela td {
+  text-align: left;
+  padding: 0.6rem 0.5rem;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.tabela th {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--cor-texto-suave);
+}
+
+.tabela__acoes {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+
+/* ---- Feedback ---- */
+
+.feedback {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--raio);
+  border: 1px solid transparent;
+}
+
+.feedback--sucesso {
+  background: var(--cor-sucesso-fundo);
+  color: var(--cor-sucesso-texto);
+  border-color: var(--cor-sucesso-texto);
+}
+
+.feedback--erro {
+  background: var(--cor-erro-fundo);
+  color: var(--cor-erro-texto);
+  border-color: var(--cor-erro-texto);
+}
+
+.feedback__fechar {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: inherit;
+  padding: 0 0.25rem;
+}
+
+/* ---- Diálogo ---- */
+
+.dialogo {
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  padding: 1.5rem;
+  max-width: 28rem;
+  color: var(--cor-texto);
+}
+
+.dialogo::backdrop {
+  background: rgb(0 0 0 / 45%);
+}
+
+.dialogo h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.15rem;
+}
+
+.dialogo p {
+  margin: 0 0 1.25rem;
+}
+
+.dialogo__acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
