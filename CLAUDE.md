@@ -34,8 +34,7 @@ Guia para o Claude Code (claude.ai/code) neste repositório.
 ## 2. Autonomia — o que fazer sem perguntar
 
 Executar sem pedir confirmação: ler código, buscar, rodar teste, criar branch, commitar na
-própria branch, abrir PR, escrever arquivo novo, rodar build/lint, subir e derrubar ambiente
-local (`docker compose up/down`, `kubectl apply` no cluster local).
+própria branch, abrir PR, escrever arquivo novo, rodar build/lint.
 
 **Pedir confirmação sempre em:** merge de PR, qualquer escrita em `main`, operação destrutiva
 (drop de banco, `rm -rf`, `docker volume rm`, `kubectl delete pvc`, reset de dados), push de
@@ -43,6 +42,40 @@ imagem para o Docker Hub, e envio de conteúdo para qualquer serviço externo.
 
 **Nunca `--force` / `push --force`.** Reescrever um PR se faz com commit novo pra frente ou
 branch nova — nunca reescrevendo histórico publicado.
+
+### 2.1 Infraestrutura é o dono quem roda (OBRIGATÓRIO)
+
+**Comando de Docker ou Kubernetes é executado pelo dono, não pelo Claude.** Isto vale para
+`docker build/run/compose/push`, `minikube`, `kind`, `kubectl` — inclusive leitura
+(`get`, `describe`, `logs`).
+
+Não é regra de segurança, é o objetivo do projeto. Ele existe para o dono aprender
+containerização e orquestração, e o entregável da avaliação é **explicar o papel de cada
+componente**. Só se explica o que se rodou com a própria mão. Claude executando o `kubectl`
+produz um cluster no ar e nenhum aprendizado — o exato oposto do que o projeto serve.
+
+**Como funciona, na ordem:**
+
+1. **Claude entrega o roteiro do arquivo** — o que cada estágio do Dockerfile ou cada campo do
+   manifesto precisa ter, e **por quê**. Não o arquivo pronto.
+2. **O dono escreve o arquivo.**
+3. **Claude revisa antes de rodar** — aponta o que está errado, o que falta e o que vai
+   quebrar, com a severidade da seção 5.
+4. **Claude entrega o passo a passo dos comandos**, um bloco por vez, dizendo o que cada um
+   faz e **o que se espera ver na saída**.
+5. **O dono executa e traz a saída.**
+6. **Claude interpreta a saída** — se divergiu do esperado, o diagnóstico parte do que apareceu
+   na tela, não do que o arquivo diz.
+
+**Consequências práticas:**
+
+- Nada de "eu subi e funcionou". Claude não sobe.
+- Entregar o comando sem dizer o que ele faz e o que esperar da saída não cumpre a regra —
+  comando copiado e colado às cegas não ensina nada.
+- Quando o dono pedir explicitamente que o Claude execute algo, executar. A regra é o padrão,
+  não uma recusa.
+- **Exceção:** a aplicação (Maven, npm, teste, lint) o Claude continua rodando. O objeto de
+  estudo é a infraestrutura, e travar o ciclo de build da aplicação só atrasa.
 
 ---
 
@@ -196,6 +229,26 @@ Esta é a seção que o projeto existe para treinar. Violação aqui é bloquean
 - **`kubectl apply` só no cluster local.** Deploy manual em cluster remoto é proibido.
 - **Manifesto YAML é código:** versionado, revisado em PR, nunca editado direto com
   `kubectl edit` (a mudança se perde no próximo apply e ninguém consegue reproduzir).
+
+Segurança do cluster — o plano de desenvolvimento pede explicitamente "internal security
+aspects", e é a direção de carreira declarada. Vale como estudo documentado mesmo quando o
+cluster local não exercita o item:
+
+- **`Secret` do Kubernetes é base64, não criptografia.** Qualquer um com acesso de leitura ao
+  recurso lê o valor. Tratar como "não está no Git", não como "está protegido" — e saber dizer
+  o que resolve de verdade (criptografia em repouso no etcd, um gerenciador externo).
+- **Pod não usa a ServiceAccount default** quando precisa falar com a API do cluster. Conta
+  dedicada, com RBAC do menor privilégio possível.
+- **`automountServiceAccountToken: false`** em pod que não fala com a API — é token montado de
+  graça dentro do container, sem necessidade.
+- **NetworkPolicy é negação por omissão que não existe por padrão.** Sem policy, qualquer pod
+  do namespace alcança o MySQL. O banco só deve aceitar tráfego do backend.
+- **Container sem privilégio:** `runAsNonRoot`, `allowPrivilegeEscalation: false`,
+  `readOnlyRootFilesystem` quando a aplicação permitir, e capabilities descartadas.
+
+> **Documentar conta como entregável.** Item que o cluster local não permite exercitar
+> (criptografia do etcd, IRSA, autoscaler de nó) entra em `docs/` explicando o que é, quando
+> se aplica e por que ficou de fora — não é omitido.
 
 ### 4.5 Qualidade de código
 
