@@ -197,6 +197,26 @@ Esta é a seção que o projeto existe para treinar. Violação aqui é bloquean
 - **Manifesto YAML é código:** versionado, revisado em PR, nunca editado direto com
   `kubectl edit` (a mudança se perde no próximo apply e ninguém consegue reproduzir).
 
+Segurança do cluster — o plano de desenvolvimento pede explicitamente "internal security
+aspects", e é a direção de carreira declarada. Vale como estudo documentado mesmo quando o
+cluster local não exercita o item:
+
+- **`Secret` do Kubernetes é base64, não criptografia.** Qualquer um com acesso de leitura ao
+  recurso lê o valor. Tratar como "não está no Git", não como "está protegido" — e saber dizer
+  o que resolve de verdade (criptografia em repouso no etcd, um gerenciador externo).
+- **Pod não usa a ServiceAccount default** quando precisa falar com a API do cluster. Conta
+  dedicada, com RBAC do menor privilégio possível.
+- **`automountServiceAccountToken: false`** em pod que não fala com a API — é token montado de
+  graça dentro do container, sem necessidade.
+- **NetworkPolicy é negação por omissão que não existe por padrão.** Sem policy, qualquer pod
+  do namespace alcança o MySQL. O banco só deve aceitar tráfego do backend.
+- **Container sem privilégio:** `runAsNonRoot`, `allowPrivilegeEscalation: false`,
+  `readOnlyRootFilesystem` quando a aplicação permitir, e capabilities descartadas.
+
+> **Documentar conta como entregável.** Item que o cluster local não permite exercitar
+> (criptografia do etcd, IRSA, autoscaler de nó) entra em `docs/` explicando o que é, quando
+> se aplica e por que ficou de fora — não é omitido.
+
 ### 4.5 Qualidade de código
 
 - **DRY** — extrair componente/service quando houver duplicação.
